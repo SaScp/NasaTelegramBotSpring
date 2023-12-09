@@ -26,6 +26,8 @@ public class NasaTelegramService extends TelegramLongPollingBot {
 
     private Logger logger = LoggerFactory.getLogger(NasaTelegramService.class);
 
+    private static NasaObject nasaObject;
+
     public NasaTelegramService(NasaService defaultNasaService, TelegramBotConfiguration telegramBotConfiguration) {
         this.defaultNasaService = defaultNasaService;
         this.telegramBotConfiguration = telegramBotConfiguration;
@@ -50,7 +52,6 @@ public class NasaTelegramService extends TelegramLongPollingBot {
                 case "/start" ->
                         sendMessage(chatId, "Привет, это бот для получений фотографий с сайта NASA, в твоем распоряжении есть 1 команда /photo");
                 case "/photo" -> {
-                    NasaObject nasaObject = null;
                     try {
                         nasaObject = defaultNasaService.getPhoto().get();
                     } catch (InterruptedException | ExecutionException e) {
@@ -65,11 +66,10 @@ public class NasaTelegramService extends TelegramLongPollingBot {
                 }
                 default -> sendMessage(chatId, command);
             }
-            logger.info("Username: " + update.getMessage().getFrom().getFirstName());
         }
     }
 
-    private void sendMessage(Long chat_id, String MessageText){
+    private void sendMessage(Long chat_id, String MessageText) {
 
         SendMessage message = new SendMessage();
         message.setChatId(chat_id);
@@ -77,10 +77,11 @@ public class NasaTelegramService extends TelegramLongPollingBot {
 
         try {
             execute(message);
-        } catch (TelegramApiException e){
+        } catch (TelegramApiException e) {
             e.printStackTrace();
         }
     }
+
     private void sendImage(long chatId, String url) {
         SendPhoto sendPhoto = new SendPhoto();
         sendPhoto.setChatId(chatId);
