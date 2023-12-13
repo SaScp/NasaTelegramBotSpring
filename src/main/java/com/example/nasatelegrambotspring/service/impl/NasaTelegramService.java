@@ -6,7 +6,6 @@ import com.example.nasatelegrambotspring.service.NasaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -14,8 +13,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
-import java.util.concurrent.ExecutionException;
 
 
 @Service
@@ -47,22 +44,33 @@ public class NasaTelegramService extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         long chatId = update.getMessage().getChatId();
         String command = update.getMessage().getText();
+        nasaObject = defaultNasaService.getPhotoOrVideo();
         if (command != null) {
             switch (command) {
                 case "/start" ->
-                        sendMessage(chatId, "Привет, это бот для получений фотографий с сайта NASA, в твоем распоряжении есть 1 команда /photo");
+                        sendMessage(chatId, "Привет, это бот для получений фотографий с сайта NASA, в твоем распоряжении есть 2 команды\n /photo\n /video");
                 case "/photo" -> {
-                    try {
-                        nasaObject = defaultNasaService.getPhoto().get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        throw new RuntimeException(e);
+                    if (nasaObject.getMedia_type().equals("image")) {
+                        sendImage(chatId, nasaObject.getHdurl());
+                        sendMessage(chatId, "\uD83C\uDF0E Автор: " +
+                                nasaObject.getCopyright() +
+                                "\n" + "⏰ Дата съемки: " +
+                                nasaObject.getDate() +
+                                "\n" + "Обьяснение (только на английском!): \n" + nasaObject.getExplanation());
+                    } else {
+                        sendMessage(chatId, "К сожалению сегодня фотографии нету, для того что бы посмотреть другие команды нажмите /start");
                     }
-                    sendImage(chatId, nasaObject.getHdurl());
-                    sendMessage(chatId, "\uD83C\uDF0E Автор: " +
-                            nasaObject.getCopyright() +
-                            "\n" + "⏰ Дата съемки: " +
-                            nasaObject.getDate() +
-                            "\n" + "Обьяснение (только на английском!): \n" + nasaObject.getExplanation());
+
+                }
+                case "/video" -> {
+                    if (nasaObject.getMedia_type().equals("video")) {
+                        sendMessage(chatId, "ссылка на ютуб: " + nasaObject.getUrl());
+                        sendMessage(chatId, "⏰ Дата съемки: " +
+                                nasaObject.getDate() +
+                                "\n" + "Обьяснение (только на английском!): \n" + nasaObject.getExplanation());
+                    } else {
+                        sendMessage(chatId, "К сожалению сегодня видео нету, для того что бы посмотреть другие команды нажмите /start");
+                    }
                 }
                 default -> sendMessage(chatId, command);
             }
@@ -97,5 +105,7 @@ public class NasaTelegramService extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
+
+
 
 }

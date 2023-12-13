@@ -5,7 +5,7 @@ import com.example.nasatelegrambotspring.service.NasaService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.concurrent.CompletableFuture;
+
 
 @Service
 public class DefaultNasaService implements NasaService {
@@ -16,9 +16,10 @@ public class DefaultNasaService implements NasaService {
 
 
     @Override
-    public CompletableFuture<NasaObject> getPhoto() {
+    public NasaObject getPhotoOrVideo() {
         String requestURL = URL + TOKEN;
-        return CompletableFuture.completedFuture(restTemplate.getForEntity(requestURL, NasaObject.class).getBody());
+
+        return restTemplate.getForEntity(requestURL, NasaObject.class).getBody();
     }
 
 }

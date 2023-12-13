@@ -1,6 +1,5 @@
 package com.example.nasatelegrambotspring.configuration;
 
-import com.example.nasatelegrambotspring.service.impl.DefaultNasaService;
 import com.example.nasatelegrambotspring.service.impl.NasaTelegramService;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
