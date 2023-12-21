@@ -18,7 +18,6 @@ public class DefaultNasaService implements NasaService {
     @Override
     public NasaObject getPhotoOrVideo() {
         String requestURL = URL + TOKEN;
-
         return restTemplate.getForEntity(requestURL, NasaObject.class).getBody();
     }
 
